@@ -1,5 +1,36 @@
-import { Stack } from "expo-router";
+import { Slot, useSegments, useRouter } from "expo-router";
+import { useEffect } from "react";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+
+// Create a simple auth context/state (you can expand this later)
+const useProtectedRoute = () => {
+  const segments = useSegments();
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const isProtectedRoute = segments[0] === "(auth)";
+
+    if (!user && isProtectedRoute) {
+      router.replace("/login");
+    }
+  }, [user, isLoading, segments]);
+};
+
+function RootLayoutNav() {
+  useProtectedRoute();
+  return <Slot />;
+}
 
 export default function RootLayout() {
-  return <Stack />;
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </ThemeProvider>
+  );
 }
