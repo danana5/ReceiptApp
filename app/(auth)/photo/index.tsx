@@ -1,109 +1,30 @@
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { useState } from "react";
-import {
-  Button,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Image,
-} from "react-native";
+import { View } from "react-native";
 import { router } from "expo-router";
-import { Feather } from "@expo/vector-icons";
 import { useTheme } from "@/contexts/ThemeContext";
+import { CameraPermission } from "./components/CameraPermission";
+import { CameraViewComponent } from "./components/CameraView";
+import { PhotoPreview } from "./components/PhotoPreview";
+import { ScanningView } from "./components/ScanningView";
+import { ResultsView } from "./components/ResultsView";
 
 export default function Photo() {
   const { theme } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
   const [camera, setCamera] = useState<CameraView | null>(null);
   const [photo, setPhoto] = useState<string | null>(null);
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background.primary,
-    },
-    message: {
-      textAlign: "center",
-      paddingBottom: 10,
-      color: theme.colors.text.primary,
-    },
-    camera: {
-      flex: 1,
-    },
-    buttonContainer: {
-      flex: 1,
-      flexDirection: "row",
-      backgroundColor: "transparent",
-      margin: 64,
-    },
-    button: {
-      flex: 1,
-      alignSelf: "flex-end",
-      alignItems: "center",
-    },
-    text: {
-      fontSize: 24,
-      fontWeight: "bold",
-      color: theme.colors.background.primary,
-    },
-    backButton: {
-      position: "absolute",
-      top: 40,
-      left: 20,
-      zIndex: 1,
-      padding: 8,
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
-      borderRadius: 20,
-      width: 40,
-      height: 40,
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    preview: {
-      flex: 1,
-      width: "100%",
-    },
-    previewButtons: {
-      position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      flexDirection: "row",
-      justifyContent: "space-around",
-      padding: 20,
-      backgroundColor: "rgba(0,0,0,0.5)",
-    },
-    previewButton: {
-      padding: 15,
-      borderRadius: 10,
-      backgroundColor: theme.colors.text.secondary,
-      width: 120,
-      alignItems: "center",
-    },
-    confirmButton: {
-      backgroundColor: theme.colors.primary,
-    },
-    previewButtonText: {
-      color: theme.colors.background.primary,
-      fontSize: 16,
-      fontWeight: "bold",
-    },
-  });
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanResults, setScanResults] = useState<string>("");
+  const [editedResults, setEditedResults] = useState<string>("");
+  const [flash, setFlash] = useState(false);
 
   if (!permission) {
     return <View />;
   }
 
   if (!permission.granted) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>
-          We need your permission to show the camera
-        </Text>
-        <Button onPress={requestPermission} title="grant permission" />
-      </View>
-    );
+    return <CameraPermission onRequestPermission={requestPermission} />;
   }
 
   async function takePhoto() {
@@ -115,58 +36,125 @@ export default function Photo() {
 
   function retakePhoto() {
     setPhoto(null);
+    setScanResults("");
+    setEditedResults("");
+  }
+
+  async function scanReceipt(imageUri: string) {
+    setIsScanning(true);
+    try {
+      // Convert image URI to base64
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const base64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+
+      // Remove data:image/jpeg;base64, prefix
+      const base64Image = (base64 as string).split(",")[1];
+
+      // Call Google Cloud Vision API
+      const visionResponse = await fetch(
+        "https://vision.googleapis.com/v1/images:annotate?key=" +
+          process.env.FIREBASE_API_KEY,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            requests: [
+              {
+                image: {
+                  content: base64Image,
+                },
+                features: [
+                  {
+                    type: "TEXT_DETECTION",
+                    maxResults: 1,
+                  },
+                ],
+              },
+            ],
+          }),
+        }
+      );
+
+      const data = await visionResponse.json();
+
+      if (!visionResponse.ok) {
+        console.error("Vision API Error:", data);
+        throw new Error(data.error?.message || "API request failed");
+      }
+
+      if (data.responses?.[0]?.fullTextAnnotation?.text) {
+        const text = data.responses[0].fullTextAnnotation.text;
+        setScanResults(text);
+        setEditedResults(text);
+      } else {
+        console.error("No text found in response:", data);
+        throw new Error("No text detected in image");
+      }
+    } catch (error: any) {
+      console.error("Full OCR Error:", error);
+      alert(`Scanning failed: ${error.message}`);
+    } finally {
+      setIsScanning(false);
+    }
   }
 
   function confirmPhoto() {
-    // TODO: Handle photo upload
-    console.log("Confirming photo:", photo);
+    if (!photo) return;
+    scanReceipt(photo);
+  }
+
+  function submitResults() {
+    // TODO: Handle submission of edited results
+    console.log("Submitting results:", editedResults);
     router.back();
+  }
+
+  if (isScanning) {
+    return <ScanningView photo={photo!} onBack={() => router.back()} />;
+  }
+
+  if (scanResults) {
+    return (
+      <ResultsView
+        onBack={() => router.back()}
+        editedResults={editedResults}
+        onChangeResults={setEditedResults}
+        onRetake={() => {
+          setScanResults("");
+          setEditedResults("");
+          setPhoto(null);
+        }}
+        onSubmit={submitResults}
+      />
+    );
   }
 
   if (photo) {
     return (
-      <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Feather name="chevron-left" size={24} color="white" />
-        </TouchableOpacity>
-
-        <Image source={{ uri: photo }} style={styles.preview} />
-
-        <View style={styles.previewButtons}>
-          <TouchableOpacity style={styles.previewButton} onPress={retakePhoto}>
-            <Text style={styles.previewButtonText}>Retake</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.previewButton, styles.confirmButton]}
-            onPress={confirmPhoto}
-          >
-            <Text style={styles.previewButtonText}>Confirm</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <PhotoPreview
+        photo={photo}
+        onBack={() => router.back()}
+        onRetake={retakePhoto}
+        onConfirm={confirmPhoto}
+      />
     );
   }
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Feather name="chevron-left" size={24} color="white" />
-      </TouchableOpacity>
-
-      <CameraView
-        style={styles.camera}
-        facing={"back"}
-        ref={(ref) => setCamera(ref)}
-      >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={takePhoto}>
-            <Text style={styles.text}>Take Photo</Text>
-          </TouchableOpacity>
-        </View>
-      </CameraView>
-    </View>
+    <CameraViewComponent
+      onBack={() => router.back()}
+      onTakePhoto={takePhoto}
+      camera={camera}
+      setCamera={setCamera}
+      flash={flash}
+      onToggleFlash={() => setFlash(!flash)}
+    />
   );
 }
