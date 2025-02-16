@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import { BottomNavBar } from "@/components/BottomNavBar";
 import { useTheme } from "@/contexts/ThemeContext";
 import { signOut } from "@/firebase/authentication";
+import { ProfilePicture } from "@/components/ProfilePicture";
 
 export default function ProfilePage() {
   const { theme } = useTheme();
@@ -122,19 +123,7 @@ export default function ProfilePage() {
       <View style={styles.content}>
         <View style={styles.profileHeader}>
           <View style={styles.imageContainer}>
-            {userDetails.profilePictureUrl ? (
-              <Image
-                source={{ uri: userDetails.profilePictureUrl }}
-                style={styles.profileImage}
-              />
-            ) : (
-              <View style={styles.placeholderImage}>
-                <Text style={styles.placeholderText}>
-                  {userDetails.firstName[0]}
-                  {userDetails.lastName[0]}
-                </Text>
-              </View>
-            )}
+            <ProfilePicture size={120} showBorder={false} />
           </View>
 
           <Pressable
@@ -156,6 +145,16 @@ export default function ProfilePage() {
           <View style={styles.infoRow}>
             <Text style={styles.label}>Email</Text>
             <Text style={styles.value}>{userDetails.email}</Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Member since</Text>
+            <Text style={styles.value}>
+              {new Date(userDetails.createdAt).toLocaleDateString("en-US", {
+                month: "long",
+                year: "numeric",
+              })}
+            </Text>
           </View>
 
           <Pressable style={styles.signOutButton} onPress={() => signOut()}>

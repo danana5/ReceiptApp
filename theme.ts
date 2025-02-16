@@ -11,6 +11,7 @@ export const defaultTheme = {
     },
     border: "#e0e0e0",
     error: "#FF0000",
+    primaryRGB: "136, 99, 255",
   },
 } as const;
 
@@ -27,5 +28,6 @@ export const darkTheme = {
     },
     border: "#666",
     error: "#FF0000",
+    primaryRGB: "136, 99, 255",
   },
 } as const;

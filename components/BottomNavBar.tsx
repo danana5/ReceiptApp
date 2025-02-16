@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { router } from "expo-router";
+import { router, usePathname } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export function BottomNavBar() {
   const { theme } = useTheme();
+  const pathname = usePathname();
 
   const styles = StyleSheet.create({
     bottomBar: {
@@ -50,7 +51,20 @@ export function BottomNavBar() {
       fontSize: 12,
       color: theme.colors.text.primary,
     },
+    bottomBarTextActive: {
+      marginTop: 5,
+      fontSize: 12,
+      color: theme.colors.primary,
+    },
   });
+
+  const isRouteActive = (route: string) => {
+    const cleanPath = pathname.replace(/\/$/, "");
+    const expectedPath = route.replace("/(auth)", "");
+
+    const isActive = cleanPath === expectedPath;
+    return isActive;
+  };
 
   return (
     <View style={styles.bottomBar}>
@@ -58,16 +72,48 @@ export function BottomNavBar() {
         style={styles.bottomBarButton}
         onPress={() => router.push("/(auth)/home")}
       >
-        <Ionicons name="home" size={24} color={theme.colors.text.primary} />
-        <Text style={styles.bottomBarText}>Home</Text>
+        <Ionicons
+          name="home"
+          size={24}
+          color={
+            isRouteActive("/(auth)/home")
+              ? theme.colors.primary
+              : theme.colors.text.primary
+          }
+        />
+        <Text
+          style={
+            isRouteActive("/(auth)/home")
+              ? styles.bottomBarTextActive
+              : styles.bottomBarText
+          }
+        >
+          Home
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.bottomBarButton}
         onPress={() => router.push("/(auth)/receipts")}
       >
-        <Ionicons name="receipt" size={24} color={theme.colors.text.primary} />
-        <Text style={styles.bottomBarText}>Receipts</Text>
+        <Ionicons
+          name="receipt"
+          size={24}
+          color={
+            isRouteActive("/(auth)/receipts")
+              ? theme.colors.primary
+              : theme.colors.text.primary
+          }
+        />
+        <Text
+          style={
+            isRouteActive("/(auth)/receipts")
+              ? styles.bottomBarTextActive
+              : styles.bottomBarText
+          }
+        >
+          Receipts
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -87,18 +133,50 @@ export function BottomNavBar() {
 
       <TouchableOpacity
         style={styles.bottomBarButton}
-        onPress={() => router.push("/(auth)/profile")}
+        onPress={() => router.push("/(auth)/insights")}
       >
-        <Ionicons name="person" size={24} color={theme.colors.text.primary} />
-        <Text style={styles.bottomBarText}>Profile</Text>
+        <Ionicons
+          name="bar-chart"
+          size={24}
+          color={
+            isRouteActive("/(auth)/insights")
+              ? theme.colors.primary
+              : theme.colors.text.primary
+          }
+        />
+        <Text
+          style={
+            isRouteActive("/(auth)/insights")
+              ? styles.bottomBarTextActive
+              : styles.bottomBarText
+          }
+        >
+          Insights
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.bottomBarButton}
         onPress={() => router.push("/(auth)/settings")}
       >
-        <Ionicons name="settings" size={24} color={theme.colors.text.primary} />
-        <Text style={styles.bottomBarText}>Settings</Text>
+        <Ionicons
+          name="settings"
+          size={24}
+          color={
+            isRouteActive("/(auth)/settings")
+              ? theme.colors.primary
+              : theme.colors.text.primary
+          }
+        />
+        <Text
+          style={
+            isRouteActive("/(auth)/settings")
+              ? styles.bottomBarTextActive
+              : styles.bottomBarText
+          }
+        >
+          Settings
+        </Text>
       </TouchableOpacity>
     </View>
   );

@@ -1,5 +1,3 @@
-"use client";
-
 import { View, Text, Switch, StyleSheet, Pressable } from "react-native";
 import { useTheme } from "@/contexts/ThemeContext";
 import { darkTheme, defaultTheme } from "@/theme";
