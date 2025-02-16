@@ -7,6 +7,7 @@ import { createAccount } from "@/firebase/authentication";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { router } from "expo-router";
 import { useTheme } from "@/contexts/ThemeContext";
+import { Logo } from "@/components/Logo";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -71,7 +72,7 @@ export default function SignupPage() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create Account</Text>
+      <Logo />
       <AuthTextInput
         placeholder="First Name"
         value={firstName}
