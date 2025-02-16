@@ -3,31 +3,36 @@ import { View, Text, StyleSheet, Alert } from "react-native";
 import { AuthTextInput } from "../../components/AuthTextInput";
 import { PasswordInput } from "../../components/PasswordInput";
 import { LoginButton } from "../../components/LoginButton";
-import { signIn } from "@/firebase/authentication";
+import { createAccount } from "@/firebase/authentication";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { router } from "expo-router";
 
-// Public route
-export default function LoginPage() {
+export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleLogin = async () => {
+  const handleSignup = async () => {
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
+
     try {
-      await signIn(email, password);
+      await createAccount(email, password);
     } catch (error) {
-      Alert.alert("Error", "Failed to sign in");
+      Alert.alert("Error", "Failed to create account");
       console.error(error);
     }
   };
 
-  const handleCreateAccount = () => {
-    router.push("/signup");
+  const handleLogin = () => {
+    router.push("/login");
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>Create Account</Text>
       <AuthTextInput
         placeholder="Email"
         value={email}
@@ -37,14 +42,19 @@ export default function LoginPage() {
       <PasswordInput
         value={password}
         onChangeText={setPassword}
-        placeholder="Enter your password"
+        placeholder="Create password"
       />
-      <LoginButton title="Login" onPress={handleLogin} />
+      <PasswordInput
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+        placeholder="Confirm password"
+      />
+      <LoginButton title="Create Account" onPress={handleSignup} />
       <LoginButton
-        title="Create Account"
-        onPress={handleCreateAccount}
-        style={styles.createAccountButton}
-        textStyle={styles.createAccountText}
+        title="Already have an account? Login"
+        onPress={handleLogin}
+        style={styles.loginButton}
+        textStyle={styles.loginText}
       />
       <GoogleAuthButton />
     </View>
@@ -64,10 +74,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: "center",
   },
-  createAccountButton: {
+  loginButton: {
     backgroundColor: "transparent",
   },
-  createAccountText: {
+  loginText: {
     color: "#007bff",
   },
 });

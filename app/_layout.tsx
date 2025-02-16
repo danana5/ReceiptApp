@@ -8,21 +8,16 @@ const useProtectedRoute = (isAuthenticated: boolean) => {
   const router = useRouter();
 
   useEffect(() => {
-    const isLoginPage = segments[0] === "login";
+    const isProtectedRoute = segments[0] === "(auth)";
 
-    if (!isAuthenticated && !isLoginPage) {
-      // Redirect to login if not authenticated and not already on login
+    if (!isAuthenticated && isProtectedRoute) {
       router.replace("/login");
-    } else if (isAuthenticated && isLoginPage) {
-      // Redirect to home if authenticated and trying to access login
-      router.replace("/(auth)/home");
     }
   }, [isAuthenticated, segments]);
 };
 
 export default function RootLayout() {
-  // Replace this with your actual auth state
-  const isAuthenticated = auth.currentUser !== null;
+  const isAuthenticated = !!auth.currentUser;
 
   useProtectedRoute(isAuthenticated);
 

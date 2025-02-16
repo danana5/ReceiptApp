@@ -1,13 +1,14 @@
 import { LoginButton } from "@/components/LoginButton";
 import { router } from "expo-router";
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Button } from "react-native";
+import { signOut } from "@/firebase/authentication";
 
 export default function HomePage() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to the Home Page!</Text>
       <LoginButton title="Photo" onPress={() => router.push("/photo")} />
+      <Button title="Sign Out" onPress={() => signOut()} />
     </View>
   );
 }
