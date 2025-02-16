@@ -10,7 +10,6 @@ import {
 import { app } from "./config";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { Alert } from "react-native";
 import { doc } from "firebase/firestore";
 import { setDoc } from "firebase/firestore";
 import { usersCollection } from "./firestore";
@@ -22,7 +21,6 @@ export async function signIn(email: string, password: string) {
     .then(() => {
       signInWithEmailAndPassword(auth, email, password)
         .then(() => {
-          Alert.alert("Sign in successful");
           router.replace("/(auth)/home");
         })
         .catch((error) => {
@@ -60,7 +58,6 @@ export async function createAccount({
           profilePictureUrl: null,
           receipts: [],
         }).then(() => {
-          Alert.alert("Account created successfully");
           router.replace("/(auth)/home");
         });
       }
@@ -73,7 +70,6 @@ export async function createAccount({
 
 export async function signOut() {
   auth.signOut().then(() => {
-    Alert.alert("Sign out successful");
     router.replace("/login");
   });
 }

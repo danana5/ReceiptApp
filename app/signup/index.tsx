@@ -6,6 +6,7 @@ import { LoginButton } from "../../components/LoginButton";
 import { createAccount } from "@/firebase/authentication";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { router } from "expo-router";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -14,6 +15,8 @@ export default function SignupPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const { theme } = useTheme();
 
   const handleSignup = async () => {
     if (password !== confirmPassword) {
@@ -40,6 +43,31 @@ export default function SignupPage() {
   const handleLogin = () => {
     router.push("/login");
   };
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      padding: 20,
+      backgroundColor: theme.colors.background.secondary,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: "bold",
+      marginBottom: 20,
+      textAlign: "center",
+      color: theme.colors.text.primary,
+    },
+    loginButton: {
+      backgroundColor: "transparent",
+    },
+    loginText: {
+      color: theme.colors.primary,
+    },
+    loader: {
+      marginTop: 20,
+    },
+  });
 
   return (
     <View style={styles.container}>
@@ -93,27 +121,3 @@ export default function SignupPage() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 20,
-    backgroundColor: "#f5f5f5",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  loginButton: {
-    backgroundColor: "transparent",
-  },
-  loginText: {
-    color: "#007bff",
-  },
-  loader: {
-    marginTop: 20,
-  },
-});
