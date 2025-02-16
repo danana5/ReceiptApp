@@ -1,25 +1,33 @@
 import { Slot, useSegments, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { auth } from "@/firebase/authentication";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 // Create a simple auth context/state (you can expand this later)
-const useProtectedRoute = (isAuthenticated: boolean) => {
+const useProtectedRoute = () => {
   const segments = useSegments();
   const router = useRouter();
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
+    if (isLoading) return;
+
     const isProtectedRoute = segments[0] === "(auth)";
 
-    if (!isAuthenticated && isProtectedRoute) {
+    if (!user && isProtectedRoute) {
       router.replace("/login");
     }
-  }, [isAuthenticated, segments]);
+  }, [user, isLoading, segments]);
 };
 
-export default function RootLayout() {
-  const isAuthenticated = !!auth.currentUser;
-
-  useProtectedRoute(isAuthenticated);
-
+function RootLayoutNav() {
+  useProtectedRoute();
   return <Slot />;
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
+  );
 }

@@ -8,6 +8,7 @@ type AuthTextInputProps = {
   secureTextEntry?: boolean;
   keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  disabled?: boolean;
 };
 
 export const AuthTextInput = ({
@@ -17,6 +18,7 @@ export const AuthTextInput = ({
   secureTextEntry = false,
   keyboardType = "default",
   autoCapitalize = "none",
+  disabled = false,
 }: AuthTextInputProps) => {
   return (
     <View
@@ -42,6 +44,7 @@ export const AuthTextInput = ({
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
+        editable={!disabled}
       />
     </View>
   );

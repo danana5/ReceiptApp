@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import { AuthTextInput } from "../../components/AuthTextInput";
 import { PasswordInput } from "../../components/PasswordInput";
 import { LoginButton } from "../../components/LoginButton";
@@ -11,6 +11,9 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignup = async () => {
     if (password !== confirmPassword) {
@@ -18,11 +21,19 @@ export default function SignupPage() {
       return;
     }
 
+    setIsLoading(true);
     try {
-      await createAccount(email, password);
+      await createAccount({
+        email,
+        password,
+        firstName,
+        lastName,
+      });
     } catch (error) {
       Alert.alert("Error", "Failed to create account");
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -34,22 +45,44 @@ export default function SignupPage() {
     <View style={styles.container}>
       <Text style={styles.title}>Create Account</Text>
       <AuthTextInput
+        placeholder="First Name"
+        value={firstName}
+        onChangeText={setFirstName}
+        disabled={isLoading}
+      />
+      <AuthTextInput
+        placeholder="Last Name"
+        value={lastName}
+        onChangeText={setLastName}
+        disabled={isLoading}
+      />
+      <AuthTextInput
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        disabled={isLoading}
       />
       <PasswordInput
         value={password}
         onChangeText={setPassword}
         placeholder="Create password"
+        disabled={isLoading}
       />
       <PasswordInput
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         placeholder="Confirm password"
+        disabled={isLoading}
       />
-      <LoginButton title="Create Account" onPress={handleSignup} />
+      <LoginButton
+        title="Create Account"
+        onPress={handleSignup}
+        disabled={isLoading}
+      />
+      {isLoading && (
+        <ActivityIndicator size="large" color="#007bff" style={styles.loader} />
+      )}
       <LoginButton
         title="Already have an account? Login"
         onPress={handleLogin}
@@ -79,5 +112,8 @@ const styles = StyleSheet.create({
   },
   loginText: {
     color: "#007bff",
+  },
+  loader: {
+    marginTop: 20,
   },
 });
