@@ -7,6 +7,8 @@ import { signIn } from "@/firebase/authentication";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { router } from "expo-router";
 import { useTheme } from "@/contexts/ThemeContext";
+import { Logo } from "@/components/Logo";
+
 // Public route
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -49,7 +51,7 @@ export default function LoginPage() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Logo />
       <AuthTextInput
         placeholder="Email"
         value={email}

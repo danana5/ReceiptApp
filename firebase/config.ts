@@ -20,5 +20,7 @@ export const firebaseConfig = {
   measurementId: FIREBASE_MEASUREMENT_ID,
 };
 
+console.log(FIREBASE_API_KEY);
+
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
