@@ -5,19 +5,14 @@ import * as Google from "expo-auth-session/providers/google";
 import { auth } from "@/firebase/authentication";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { useEffect } from "react";
-import {
-  GOOGLE_WEB_CLIENT_ID,
-  GOOGLE_ANDROID_CLIENT_ID,
-  GOOGLE_IOS_CLIENT_ID,
-} from "@env";
 
 WebBrowser.maybeCompleteAuthSession();
 
 export const GoogleAuthButton = () => {
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: GOOGLE_WEB_CLIENT_ID,
-    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
-    iosClientId: GOOGLE_IOS_CLIENT_ID,
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
   });
 
   useEffect(() => {
