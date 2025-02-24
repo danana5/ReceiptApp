@@ -12,6 +12,11 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.danlara.receiptapp"
     },
+    "splash": {
+      "image": "./assets/adaptive-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#8863FF"
+    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",

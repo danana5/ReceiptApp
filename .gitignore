@@ -43,4 +43,3 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
-android/
